@@ -13,9 +13,15 @@ class SignalWidget : public QFrame {
 
 public:
   SignalWidget(QString text, int strength, QWidget* parent = 0);
-  void update(QString text, int strength);
+  void update(QString text, int strength, const UIScene &scene);
   QLabel label;
   int _strength = 0;
+
+  QLabel label_ip;
+
+  QImage image_bty;
+  int    m_batteryPercent;
+  int    m_battery_img;
 
 protected:
   void paintEvent(QPaintEvent*) override;

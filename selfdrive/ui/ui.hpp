@@ -33,6 +33,11 @@
 #define COLOR_YELLOW nvgRGBA(218, 202, 37, 255)
 #define COLOR_RED nvgRGBA(201, 34, 49, 255)
 
+#define COLOR_GREEN nvgRGBA(0, 255, 0, 255)
+#define COLOR_GREEN_ALPHA(x) nvgRGBA(0, 255, 0, x)
+#define COLOR_ORANGE nvgRGBA(255, 175, 3, 255)
+#define COLOR_ORANGE_ALPHA(x) nvgRGBA(255, 175, 3, x)
+
 typedef struct Rect {
   int x, y, w, h;
   int centerX() const { return x + w / 2; }
@@ -65,11 +70,11 @@ typedef enum UIStatus {
 } UIStatus;
 
 static std::map<UIStatus, NVGcolor> bg_colors = {
-  {STATUS_OFFROAD, nvgRGBA(0x0, 0x0, 0x0, 0xff)},
-  {STATUS_DISENGAGED, nvgRGBA(0x17, 0x33, 0x49, 0xc8)},
-  {STATUS_ENGAGED, nvgRGBA(0x17, 0x86, 0x44, 0xf1)},
-  {STATUS_WARNING, nvgRGBA(0xDA, 0x6F, 0x25, 0xf1)},
-  {STATUS_ALERT, nvgRGBA(0xC9, 0x22, 0x31, 0xf1)},
+  {STATUS_OFFROAD, nvgRGBA(0x0, 0x0, 0x0, 0xcf)},
+  {STATUS_DISENGAGED, nvgRGBA(0x17, 0x33, 0x49, 0x88)},
+  {STATUS_ENGAGED, nvgRGBA(0x17, 0x86, 0x44, 0x51)},
+  {STATUS_WARNING, nvgRGBA(0xDA, 0x6F, 0x25, 0x51)},
+  {STATUS_ALERT, nvgRGBA(0xC9, 0x22, 0x31, 0x31)},
 };
 
 typedef struct {
@@ -122,6 +127,42 @@ typedef struct UIScene {
   float light_sensor, accel_sensor, gyro_sensor;
   bool started, ignition, is_metric, longitudinal_control, end_to_end;
   uint64_t started_frame;
+
+
+  // atom
+  struct _screen
+  {
+     int  nTime;
+     int  autoScreenOff;
+     int  brightness;
+     int  nVolumeBoost;
+     int  awake;
+  } scr;
+
+  
+  int  dash_menu_no;
+  struct _mouse
+  {
+    int touch_x;
+    int touch_y;
+    int touched;
+    int touch_cnt;
+    int sidebar;
+  } mouse;
+
+  cereal::ModelDataV2::Reader modelDataV2;
+  cereal::FrameData::Reader   camera_state;
+  cereal::CarControl::Reader carControl;
+  cereal::LateralPlan::Reader lateralPlan;
+  cereal::LiveParametersData::Reader   liveParameters;
+  cereal::GpsLocationData::Reader   gpsLocationExternal;
+
+  struct _STATUS_
+  {
+      std::string alertTextMsg1;
+      std::string alertTextMsg2; 
+      std::string alertTextMsg3;
+  } alert;
 } UIScene;
 
 typedef struct UIState {
@@ -196,7 +237,7 @@ private:
   const float accel_samples = 5*UI_FREQ;
 
   bool awake;
-  int awake_timeout = 0;
+  int awake_timeout = 300;
   float accel_prev = 0;
   float gyro_prev = 0;
   float brightness_b = 0;
@@ -208,6 +249,7 @@ private:
 
   void updateBrightness(const UIState &s);
   void updateWakefulness(const UIState &s);
+  void ScreenAwake();
 
 signals:
   void displayPowerChanged(bool on);

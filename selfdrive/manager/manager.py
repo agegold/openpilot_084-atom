@@ -35,6 +35,17 @@ def manager_init():
     ("HasAcceptedTerms", "0"),
     ("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')),
     ("OpenpilotEnabledToggle", "1"),
+
+    ("IsOpenpilotViewEnabled", "0"),
+    ("OpkrAutoResume", "0"),
+    ("OpkrLiveSteerRatio", "0"),
+    ("OpkrTurnSteeringDisable", "0"),
+    ("OpkrPrebuilt", "0"),
+    ("OpkrAutoScreenOff", "0"),
+    ("OpkrUIBrightness", "0"),
+    ("OpkrUIVolumeBoost", "0"),    
+    ("LongitudinalControl", "0"),
+    ("OpkrSSHLegacy", "1"),    
   ]
 
   if TICI:
@@ -112,8 +123,7 @@ def manager_thread():
   cloudlog.info({"environ": os.environ})
 
   # save boot log
-  subprocess.call("./bootlog", cwd=os.path.join(BASEDIR, "selfdrive/loggerd"))
-
+  #subprocess.call("./bootlog", cwd=os.path.join(BASEDIR, "selfdrive/loggerd"))
   params = Params()
 
   ignore = []
@@ -125,6 +135,24 @@ def manager_thread():
   ensure_running(managed_processes.values(), started=False, not_run=ignore)
 
   started_prev = False
+
+
+  # atom
+  #params = Params()
+  enableLogger = params.get_bool("RecordFront")
+  if not enableLogger:
+    ignore.append("loggerd")
+    ignore.append("logcatd")
+    ignore.append("logmessaged")
+    ignore.append("uploader")
+    ignore.append("updated")
+    ignore.append("deleter")
+    ignore.append("tombstoned")
+  else:
+    # save boot log
+    subprocess.call("./bootlog", cwd=os.path.join(BASEDIR, "selfdrive/loggerd"))
+
+
   sm = messaging.SubMaster(['deviceState'])
   pm = messaging.PubMaster(['managerState'])
 

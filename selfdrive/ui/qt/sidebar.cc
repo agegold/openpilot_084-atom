@@ -57,11 +57,19 @@ void StatusWidget::update(QString label, QString msg, QColor c) {
 SignalWidget::SignalWidget(QString text, int strength, QWidget* parent) : QFrame(parent), _strength(strength) {
   layout.setMargin(0);
   layout.setSpacing(0);
-  layout.insertSpacing(0, 45);
+  layout.insertSpacing(0, 40);
 
   label.setText(text);
   layout.addWidget(&label, 0, Qt::AlignLeft);
   label.setStyleSheet(R"(font-size: 35px; font-weight: 400;)");
+
+  //move( 100,0);
+ // layout.insertSpacing(2, 8);
+  label_ip.setText(text);
+  label_ip.setStyleSheet(R"(font-size: 27px; font-weight: 400;)");
+  layout.addWidget(&label_ip, 0, Qt::AlignLeft);
+
+  image_bty.load("../assets/images/battery.png");
 
   setFixedWidth(177);
   setLayout(&layout);
@@ -73,23 +81,76 @@ void SignalWidget::paintEvent(QPaintEvent *e){
   p.setPen(Qt::NoPen);
   p.setBrush(Qt::white);
   for (int i = 0; i < 5 ; i++){
-    if(i == _strength){
+    if(i >= _strength){
       p.setPen(Qt::NoPen);
       p.setBrush(Qt::darkGray);
     }
     p.drawEllipse(QRectF(_dotspace * i, _top, _dia, _dia));
   }
+
+  QRect  rect(90, _dia+18, 76, 36);
+  QRect  bq(rect.left() + 6, rect.top() + 5, int((rect.width() - 19) * m_batteryPercent * 0.01), rect.height() - 11 );
+  QBrush bgBrush("#A0A0A0");
+  p.fillRect(bq, bgBrush);  
+  p.drawImage(rect, image_bty);
+
+
+  p.setPen(Qt::yellow);
+  QFont font = p.font();
+  font.setPixelSize(20);
+  p.setFont(font);
+
+  char temp_value_str1[32];
+  snprintf(temp_value_str1, sizeof(temp_value_str1), "%d", m_batteryPercent );
+  p.drawText(rect, Qt::AlignCenter, temp_value_str1);
 }
 
-void SignalWidget::update(QString text, int strength){
+void SignalWidget::update( QString text, int strength, const UIScene &scene )
+{
+  int batteryPercent = scene.deviceState.getBatteryPercent();
+  if( batteryPercent <= 0)
+     batteryPercent = 50;
+
+  std::string ip = scene.deviceState.getWifiIpAddress();
+
+  QString  txt(ip.c_str());
+  label_ip.setText(txt);
+
+  int reDraw = 0;
+  int battery_img = scene.deviceState.getBatteryStatus() == "Charging" ? 1 : 0;
+  if( m_battery_img != battery_img )
+  {
+    reDraw = 1;    
+    m_battery_img = battery_img;
+    if( battery_img )
+      image_bty.load("../assets/images/battery_charging.png");
+    else
+      image_bty.load("../assets/images/battery.png");
+  }
+
+
   label.setText(text);
-  _strength = strength;
+  if( _strength != strength )
+  {
+    reDraw = 1;    
+    _strength = strength;
+  }
+  if( m_batteryPercent != batteryPercent )
+  {
+    reDraw = 1;    
+    m_batteryPercent = batteryPercent;
+  }
+  
+  if( reDraw )
+  {
+    repaint();
+  }
 }
 
 Sidebar::Sidebar(QWidget* parent) : QFrame(parent) {
   QVBoxLayout* layout = new QVBoxLayout();
   layout->setContentsMargins(25, 50, 25, 50);
-  layout->setSpacing(35);
+  layout->setSpacing(30);
   setFixedSize(300, vwp_h);
 
   QPushButton *s_btn = new QPushButton;
@@ -163,7 +224,9 @@ void Sidebar::update(const UIState &s){
       {cereal::DeviceState::NetworkStrength::GOOD, 4},
       {cereal::DeviceState::NetworkStrength::GREAT, 5}};
   const int img_idx = s.scene.deviceState.getNetworkType() == cereal::DeviceState::NetworkType::NONE ? 0 : network_strength_map[s.scene.deviceState.getNetworkStrength()];
-  signal->update(network_type, img_idx);
+
+  signal->update(network_type, img_idx, s.scene);
+
 
   QColor panda_color = COLOR_GOOD;
   QString panda_message = "VEHICLE\nONLINE";
