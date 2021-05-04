@@ -151,7 +151,7 @@ class SpdctrlNormal(SpdController):
               set_speed = temp_speed
 
             set_speed = max( 30, set_speed )
-            delta_spd = abs(model_speed - v_ego_kph)
+            delta_spd = abs(set_speed - v_ego_kph)
             xp = [2,10,30]
             fp = [100,30,15]
             wait_time_cmd = interp( delta_spd, xp, fp )
