@@ -140,7 +140,7 @@ class SpdctrlSlow(SpdController):
               set_speed = temp_speed
             set_speed = max( 30, set_speed )
             delta_spd = abs(set_speed - v_ego_kph)
-            xp = [2,10,20]
+            xp = [1,3,10]
             fp = [100,30,15]
             wait_time_cmd = interp( delta_spd, xp, fp )
 
