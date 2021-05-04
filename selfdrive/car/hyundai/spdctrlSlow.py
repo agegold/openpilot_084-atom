@@ -130,7 +130,11 @@ class SpdctrlSlow(SpdController):
 
         if int(self.cruise_set_mode) == 4:
             set_speed = model_speed * 0.8
-            target_kph = v_ego_kph + 5
+            if CS.lead_objspd < 0:
+              target_kph = v_ego_kph + CS.lead_objspd
+            else:
+              target_kph = v_ego_kph + 5
+
             temp_speed = min( model_speed, target_kph )
             if temp_speed < set_speed:
               set_speed = temp_speed
