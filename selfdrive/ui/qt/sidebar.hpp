@@ -18,7 +18,6 @@ public:
   int _strength = 0;
 
   QLabel label_ip;
-
   QImage image_bty;
   int    m_batteryPercent;
   int    m_battery_img;

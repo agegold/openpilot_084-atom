@@ -69,7 +69,7 @@ void DriveStats::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         auto *_t = static_cast<DriveStats *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->parseResponse((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 0: _t->parseResponse((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         default: ;
         }
     }

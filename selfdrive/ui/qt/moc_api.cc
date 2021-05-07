@@ -158,9 +158,9 @@ void HttpRequest::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
         auto *_t = static_cast<HttpRequest *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->receivedResponse((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 1: _t->failedResponse((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 2: _t->timeoutResponse((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 0: _t->receivedResponse((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 1: _t->failedResponse((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 2: _t->timeoutResponse((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 3: _t->requestTimeout(); break;
         case 4: _t->requestFinished(); break;
         default: ;
@@ -168,21 +168,21 @@ void HttpRequest::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (HttpRequest::*)(QString );
+            using _t = void (HttpRequest::*)(const QString & );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&HttpRequest::receivedResponse)) {
                 *result = 0;
                 return;
             }
         }
         {
-            using _t = void (HttpRequest::*)(QString );
+            using _t = void (HttpRequest::*)(const QString & );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&HttpRequest::failedResponse)) {
                 *result = 1;
                 return;
             }
         }
         {
-            using _t = void (HttpRequest::*)(QString );
+            using _t = void (HttpRequest::*)(const QString & );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&HttpRequest::timeoutResponse)) {
                 *result = 2;
                 return;
@@ -232,21 +232,21 @@ int HttpRequest::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void HttpRequest::receivedResponse(QString _t1)
+void HttpRequest::receivedResponse(const QString & _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 
 // SIGNAL 1
-void HttpRequest::failedResponse(QString _t1)
+void HttpRequest::failedResponse(const QString & _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 1, _a);
 }
 
 // SIGNAL 2
-void HttpRequest::timeoutResponse(QString _t1)
+void HttpRequest::timeoutResponse(const QString & _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 2, _a);

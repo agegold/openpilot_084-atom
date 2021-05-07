@@ -105,8 +105,15 @@ void SignalWidget::paintEvent(QPaintEvent *e){
   p.drawText(rect, Qt::AlignCenter, temp_value_str1);
 }
 
-void SignalWidget::update( QString text, int strength, const UIScene &scene )
-{
+void SignalWidget::update( QString text, int strength, const UIScene &scene ){
+  int reDraw = 0;
+  label.setText(text);
+  if( _strength != strength )
+  {
+    _strength = strength;
+    reDraw = 1;    
+  }
+
   int batteryPercent = scene.deviceState.getBatteryPercent();
   if( batteryPercent <= 0)
      batteryPercent = 50;
@@ -116,7 +123,7 @@ void SignalWidget::update( QString text, int strength, const UIScene &scene )
   QString  txt(ip.c_str());
   label_ip.setText(txt);
 
-  int reDraw = 0;
+
   int battery_img = scene.deviceState.getBatteryStatus() == "Charging" ? 1 : 0;
   if( m_battery_img != battery_img )
   {
@@ -129,12 +136,7 @@ void SignalWidget::update( QString text, int strength, const UIScene &scene )
   }
 
 
-  label.setText(text);
-  if( _strength != strength )
-  {
-    reDraw = 1;    
-    _strength = strength;
-  }
+
   if( m_batteryPercent != batteryPercent )
   {
     reDraw = 1;    
@@ -224,9 +226,7 @@ void Sidebar::update(const UIState &s){
       {cereal::DeviceState::NetworkStrength::GOOD, 4},
       {cereal::DeviceState::NetworkStrength::GREAT, 5}};
   const int img_idx = s.scene.deviceState.getNetworkType() == cereal::DeviceState::NetworkType::NONE ? 0 : network_strength_map[s.scene.deviceState.getNetworkStrength()];
-
   signal->update(network_type, img_idx, s.scene);
-
 
   QColor panda_color = COLOR_GOOD;
   QString panda_message = "VEHICLE\nONLINE";

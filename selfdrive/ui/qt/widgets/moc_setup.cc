@@ -163,7 +163,7 @@ void PrimeUserWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         auto *_t = static_cast<PrimeUserWidget *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->replyFinished((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 0: _t->replyFinished((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -334,8 +334,8 @@ void SetupWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
         auto *_t = static_cast<SetupWidget *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->parseError((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 1: _t->replyFinished((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 0: _t->parseError((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 1: _t->replyFinished((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 2: _t->showQrCode(); break;
         default: ;
         }
