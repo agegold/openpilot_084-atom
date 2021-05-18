@@ -1319,7 +1319,7 @@ struct Boot {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(a12e8670927a2549, 1, 3)
+    CAPNP_DECLARE_STRUCT_HEADER(a12e8670927a2549, 1, 4)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -8932,6 +8932,8 @@ public:
 
   inline  ::uint8_t getJamInd() const;
 
+  inline  ::uint8_t getFlags() const;
+
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -8974,6 +8976,9 @@ public:
 
   inline  ::uint8_t getJamInd();
   inline void setJamInd( ::uint8_t value);
+
+  inline  ::uint8_t getFlags();
+  inline void setFlags( ::uint8_t value);
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -9979,14 +9984,17 @@ public:
 
   inline  ::uint64_t getWallTimeNanos() const;
 
-  inline bool hasLastKmsg() const;
-  inline  ::capnp::Data::Reader getLastKmsg() const;
+  inline bool hasLastKmsgDEPRECATED() const;
+  inline  ::capnp::Data::Reader getLastKmsgDEPRECATED() const;
 
-  inline bool hasLastPmsg() const;
-  inline  ::capnp::Data::Reader getLastPmsg() const;
+  inline bool hasLastPmsgDEPRECATED() const;
+  inline  ::capnp::Data::Reader getLastPmsgDEPRECATED() const;
 
   inline bool hasLaunchLog() const;
   inline  ::capnp::Text::Reader getLaunchLog() const;
+
+  inline bool hasPstore() const;
+  inline  ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Reader getPstore() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -10019,19 +10027,19 @@ public:
   inline  ::uint64_t getWallTimeNanos();
   inline void setWallTimeNanos( ::uint64_t value);
 
-  inline bool hasLastKmsg();
-  inline  ::capnp::Data::Builder getLastKmsg();
-  inline void setLastKmsg( ::capnp::Data::Reader value);
-  inline  ::capnp::Data::Builder initLastKmsg(unsigned int size);
-  inline void adoptLastKmsg(::capnp::Orphan< ::capnp::Data>&& value);
-  inline ::capnp::Orphan< ::capnp::Data> disownLastKmsg();
+  inline bool hasLastKmsgDEPRECATED();
+  inline  ::capnp::Data::Builder getLastKmsgDEPRECATED();
+  inline void setLastKmsgDEPRECATED( ::capnp::Data::Reader value);
+  inline  ::capnp::Data::Builder initLastKmsgDEPRECATED(unsigned int size);
+  inline void adoptLastKmsgDEPRECATED(::capnp::Orphan< ::capnp::Data>&& value);
+  inline ::capnp::Orphan< ::capnp::Data> disownLastKmsgDEPRECATED();
 
-  inline bool hasLastPmsg();
-  inline  ::capnp::Data::Builder getLastPmsg();
-  inline void setLastPmsg( ::capnp::Data::Reader value);
-  inline  ::capnp::Data::Builder initLastPmsg(unsigned int size);
-  inline void adoptLastPmsg(::capnp::Orphan< ::capnp::Data>&& value);
-  inline ::capnp::Orphan< ::capnp::Data> disownLastPmsg();
+  inline bool hasLastPmsgDEPRECATED();
+  inline  ::capnp::Data::Builder getLastPmsgDEPRECATED();
+  inline void setLastPmsgDEPRECATED( ::capnp::Data::Reader value);
+  inline  ::capnp::Data::Builder initLastPmsgDEPRECATED(unsigned int size);
+  inline void adoptLastPmsgDEPRECATED(::capnp::Orphan< ::capnp::Data>&& value);
+  inline ::capnp::Orphan< ::capnp::Data> disownLastPmsgDEPRECATED();
 
   inline bool hasLaunchLog();
   inline  ::capnp::Text::Builder getLaunchLog();
@@ -10039,6 +10047,13 @@ public:
   inline  ::capnp::Text::Builder initLaunchLog(unsigned int size);
   inline void adoptLaunchLog(::capnp::Orphan< ::capnp::Text>&& value);
   inline ::capnp::Orphan< ::capnp::Text> disownLaunchLog();
+
+  inline bool hasPstore();
+  inline  ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Builder getPstore();
+  inline void setPstore( ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Reader value);
+  inline  ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Builder initPstore();
+  inline void adoptPstore(::capnp::Orphan< ::cereal::Map< ::capnp::Text,  ::capnp::Data>>&& value);
+  inline ::capnp::Orphan< ::cereal::Map< ::capnp::Text,  ::capnp::Data>> disownPstore();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -10058,6 +10073,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline  ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Pipeline getPstore();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -23966,6 +23982,20 @@ inline void UbloxGnss::HwStatus::Builder::setJamInd( ::uint8_t value) {
       ::capnp::bounded<8>() * ::capnp::ELEMENTS, value);
 }
 
+inline  ::uint8_t UbloxGnss::HwStatus::Reader::getFlags() const {
+  return _reader.getDataField< ::uint8_t>(
+      ::capnp::bounded<9>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint8_t UbloxGnss::HwStatus::Builder::getFlags() {
+  return _builder.getDataField< ::uint8_t>(
+      ::capnp::bounded<9>() * ::capnp::ELEMENTS);
+}
+inline void UbloxGnss::HwStatus::Builder::setFlags( ::uint8_t value) {
+  _builder.setDataField< ::uint8_t>(
+      ::capnp::bounded<9>() * ::capnp::ELEMENTS, value);
+}
+
 inline  ::int8_t UbloxGnss::HwStatus2::Reader::getOfsI() const {
   return _reader.getDataField< ::int8_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
@@ -25408,70 +25438,70 @@ inline void Boot::Builder::setWallTimeNanos( ::uint64_t value) {
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
-inline bool Boot::Reader::hasLastKmsg() const {
+inline bool Boot::Reader::hasLastKmsgDEPRECATED() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Boot::Builder::hasLastKmsg() {
+inline bool Boot::Builder::hasLastKmsgDEPRECATED() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Data::Reader Boot::Reader::getLastKmsg() const {
+inline  ::capnp::Data::Reader Boot::Reader::getLastKmsgDEPRECATED() const {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Data::Builder Boot::Builder::getLastKmsg() {
+inline  ::capnp::Data::Builder Boot::Builder::getLastKmsgDEPRECATED() {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void Boot::Builder::setLastKmsg( ::capnp::Data::Reader value) {
+inline void Boot::Builder::setLastKmsgDEPRECATED( ::capnp::Data::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::Data>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Data::Builder Boot::Builder::initLastKmsg(unsigned int size) {
+inline  ::capnp::Data::Builder Boot::Builder::initLastKmsgDEPRECATED(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
-inline void Boot::Builder::adoptLastKmsg(
+inline void Boot::Builder::adoptLastKmsgDEPRECATED(
     ::capnp::Orphan< ::capnp::Data>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::Data>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Data> Boot::Builder::disownLastKmsg() {
+inline ::capnp::Orphan< ::capnp::Data> Boot::Builder::disownLastKmsgDEPRECATED() {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool Boot::Reader::hasLastPmsg() const {
+inline bool Boot::Reader::hasLastPmsgDEPRECATED() const {
   return !_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline bool Boot::Builder::hasLastPmsg() {
+inline bool Boot::Builder::hasLastPmsgDEPRECATED() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Data::Reader Boot::Reader::getLastPmsg() const {
+inline  ::capnp::Data::Reader Boot::Reader::getLastPmsgDEPRECATED() const {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Data::Builder Boot::Builder::getLastPmsg() {
+inline  ::capnp::Data::Builder Boot::Builder::getLastPmsgDEPRECATED() {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline void Boot::Builder::setLastPmsg( ::capnp::Data::Reader value) {
+inline void Boot::Builder::setLastPmsgDEPRECATED( ::capnp::Data::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::Data>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Data::Builder Boot::Builder::initLastPmsg(unsigned int size) {
+inline  ::capnp::Data::Builder Boot::Builder::initLastPmsgDEPRECATED(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::init(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), size);
 }
-inline void Boot::Builder::adoptLastPmsg(
+inline void Boot::Builder::adoptLastPmsgDEPRECATED(
     ::capnp::Orphan< ::capnp::Data>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::Data>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Data> Boot::Builder::disownLastPmsg() {
+inline ::capnp::Orphan< ::capnp::Data> Boot::Builder::disownLastPmsgDEPRECATED() {
   return ::capnp::_::PointerHelpers< ::capnp::Data>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
@@ -25508,6 +25538,45 @@ inline void Boot::Builder::adoptLaunchLog(
 inline ::capnp::Orphan< ::capnp::Text> Boot::Builder::disownLaunchLog() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+
+inline bool Boot::Reader::hasPstore() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline bool Boot::Builder::hasPstore() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline  ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Reader Boot::Reader::getPstore() const {
+  return ::capnp::_::PointerHelpers< ::cereal::Map< ::capnp::Text,  ::capnp::Data>>::get(_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline  ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Builder Boot::Builder::getPstore() {
+  return ::capnp::_::PointerHelpers< ::cereal::Map< ::capnp::Text,  ::capnp::Data>>::get(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Pipeline Boot::Pipeline::getPstore() {
+  return  ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Pipeline(_typeless.getPointerField(3));
+}
+#endif  // !CAPNP_LITE
+inline void Boot::Builder::setPstore( ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Reader value) {
+  ::capnp::_::PointerHelpers< ::cereal::Map< ::capnp::Text,  ::capnp::Data>>::set(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), value);
+}
+inline  ::cereal::Map< ::capnp::Text,  ::capnp::Data>::Builder Boot::Builder::initPstore() {
+  return ::capnp::_::PointerHelpers< ::cereal::Map< ::capnp::Text,  ::capnp::Data>>::init(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline void Boot::Builder::adoptPstore(
+    ::capnp::Orphan< ::cereal::Map< ::capnp::Text,  ::capnp::Data>>&& value) {
+  ::capnp::_::PointerHelpers< ::cereal::Map< ::capnp::Text,  ::capnp::Data>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::cereal::Map< ::capnp::Text,  ::capnp::Data>> Boot::Builder::disownPstore() {
+  return ::capnp::_::PointerHelpers< ::cereal::Map< ::capnp::Text,  ::capnp::Data>>::disown(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 
 inline bool LiveParametersData::Reader::getValid() const {

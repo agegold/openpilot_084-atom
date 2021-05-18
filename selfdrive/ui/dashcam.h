@@ -3,8 +3,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "common/params.h"
-#include "home.hpp"
+#include "selfdrive/common/params.h"
+#include "selfdrive/ui/qt/home.h"
 
 #define CAPTURE_STATE_NONE 0
 #define CAPTURE_STATE_CAPTURING 1
@@ -348,10 +348,29 @@ static void screen_menu_button(UIState *s, int touch_x, int touch_y, int touched
 
   nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_BASELINE);
 
-    //int btn_w = 150;
-    //int btn_h = 150;
-    //int btn_x = 1650;// 1920 - btn_w;
-    //int btn_y = 1080 - btn_h;
+
+    if( touched && screen_button_clicked(touch_x, touch_y, 1000, 950, 150, 150) )
+    {
+        int value = Params::param_value.autoFocus++;
+        if( value > 100)
+        {
+          Params::param_value.autoFocus = 100;
+        }
+        QString values = QString::number(value);
+        Params().put("OpkrAutoFocus", values.toStdString());
+    }
+    else if( touched && screen_button_clicked(touch_x, touch_y, 1200, 950, 150, 150) )
+    {
+        int value = Params::param_value.autoFocus--;
+        if( value < 0)
+        {
+          Params::param_value.autoFocus = 0;
+        }
+        QString values = QString::number(value);
+        Params().put("OpkrAutoFocus", values.toStdString());
+    }
+    nvgText(s->vg, 1000, 950, "[+]", NULL);
+    nvgText(s->vg, 1200, 950, "[-]", NULL);
 
     int btn_w = 150;
     int btn_h = 150;
@@ -461,6 +480,11 @@ static void ui_draw_debug2(UIState *s)
   float  laneWidth = scene.lateralPlan.getLaneWidth();
   //float  cpuPerc = scene.deviceState.getCpuUsagePercent();
 
+  float  vCruise = scene.longitudinalPlan.getVCruise();
+//  float  aCruise = scene.longitudinalPlan.getACruise();
+//  float  vTarget = scene.longitudinalPlan.getVTarget();
+ // float  aTarget = scene.longitudinalPlan.getATarget();
+
 
   auto lane_line_probs = scene.modelDataV2.getLaneLineProbs();
 
@@ -469,8 +493,8 @@ static void ui_draw_debug2(UIState *s)
 
     //ui_print( s, ui_viz_rx+10, 50, "S:%d",  s->awake_timeout );
 
-    x_pos = ui_viz_rx + 300;
-    y_pos = 200; 
+    x_pos = ui_viz_rx + 250;
+    y_pos = 100; 
 
     ui_print( s, x_pos, y_pos+0,   "sR:%.2f, %.2f", steerRatio,  steerRatioCV );
     ui_print( s, x_pos, y_pos+50,   "SC:%.2f, SD:%.2f", steerRateCostCV,  steerActuatorDelayCV );
@@ -478,14 +502,16 @@ static void ui_draw_debug2(UIState *s)
     ui_print( s, x_pos, y_pos+100,  "aO:%.2f, %.2f", angleOffset, angleOffsetAverage );
     ui_print( s, x_pos, y_pos+150, "sF:%.2f Fan:%.0f", stiffnessFactor, fanSpeed/1000. );
     ui_print( s, x_pos, y_pos+200, "lW:%.2f CV:%.0f", laneWidth, modelSpeed );
-    ui_print( s, x_pos, y_pos+250, "time:%d", scene.scr.nTime/20 );
-
+   // ui_print( s, x_pos, y_pos+250, "time:%d" , scene.scr.nTime/20 );
 
     ui_print( s, x_pos, y_pos+300, "prob:%.2f, %.2f, %.2f, %.2f", lane_line_probs[0], lane_line_probs[1], lane_line_probs[2], lane_line_probs[3] );
-
+    ui_print( s, x_pos, y_pos+350, "vCruise:%.1f",  vCruise*3.6 );//,  aCruise, vTarget*3.6,  aTarget);
 
     
-
+    int  lensPos = scene.camera_state.getLensPos();
+    float  lensTruePos = scene.camera_state.getLensTruePos();
+    float  lensErr = scene.camera_state.getLensErr();
+    ui_print( s, x_pos, y_pos+450, "frame:%d,%.3f,%.3f, %d", lensPos, lensTruePos, lensErr, Params::param_value.autoFocus );
   //float  dPoly = scene.pathPlan.lPoly + scene.pathPlan.rPoly;
   //ui_print( s, x_pos, y_pos+300, "Poly:%.2f, %.2f = %.2f", scene.pathPlan.lPoly, scene.pathPlan.rPoly, dPoly );
   // ui_print( s, x_pos, y_pos+350, "map:%d,cam:%d", scene.live.map_valid, scene.live.speedlimitahead_valid  );
@@ -497,7 +523,7 @@ static void ui_draw_debug2(UIState *s)
     float fr = tpms.getFr();
     float rl = tpms.getRl();
     float rr = tpms.getRr();
-    ui_print( s, x_pos, y_pos+350, "tpms:%.0f,%.0f,%.0f,%.0f", fl, fr, rl, rr );
+    ui_print( s, x_pos, y_pos+400, "tpms:%.0f,%.0f,%.0f,%.0f", fl, fr, rl, rr );
 }
 
 static void ui_draw_debug(UIState *s) 
@@ -514,10 +540,7 @@ static void ui_draw_debug(UIState *s)
     ui_draw_debug2(s);
   }
 
-   // int  lensPos = scene.frame.getLensPos();
-   // int  lensTruePos = scene.frame.getLensTruePos();
-    //int  lensErr = scene.frame.getLensErr();
-  //  ui_print( s, x_pos, y_pos+400, "frame:%d,%d", lensPos, lensTruePos );
+
 
 
    // ui_print( s, 0, 1020, "%s", scene.alert.text1 );
@@ -578,16 +601,12 @@ void update_dashcam(UIState *s, int draw_vision)
   int touch_x = s->scene.mouse.touch_x;
   int touch_y = s->scene.mouse.touch_y;
   int touched = s->scene.mouse.touched;
-  //int touch_cnt = s->scene.mouse.touch_cnt;
-  
-
-    
-
 
   if ( program_start )
   {
-
     program_start = 0;
+
+    Params::param_value.autoFocus = get_param("OpkrAutoFocus");
     s->scene.scr.autoScreenOff = get_param("OpkrAutoScreenOff");
     s->scene.scr.brightness = get_param("OpkrUIBrightness");
 

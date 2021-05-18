@@ -1,16 +1,16 @@
+#include "selfdrive/ui/qt/home.h"
+
 #include <QDateTime>
 #include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QVBoxLayout>
 
-#include "common/util.h"
-#include "common/params.h"
-#include "common/timing.h"
-#include "common/swaglog.h"
-
-#include "home.hpp"
-#include "widgets/drive_stats.hpp"
-#include "widgets/setup.hpp"
+#include "selfdrive/common/params.h"
+#include "selfdrive/common/swaglog.h"
+#include "selfdrive/common/timing.h"
+#include "selfdrive/common/util.h"
+#include "selfdrive/ui/qt/widgets/drive_stats.h"
+#include "selfdrive/ui/qt/widgets/setup.h"
 
 // HomeWindow: the container for the offroad and onroad UIs
 
@@ -30,6 +30,7 @@ HomeWindow::HomeWindow(QWidget* parent) : QWidget(parent) {
   onroad = new OnroadWindow(this);
   slayout->addWidget(onroad);
   QObject::connect(this, &HomeWindow::update, onroad, &OnroadWindow::update);
+  QObject::connect(this, &HomeWindow::offroadTransitionSignal, onroad, &OnroadWindow::offroadTransition);
 
   home = new OffroadHome();
   slayout->addWidget(home);
@@ -45,6 +46,7 @@ void HomeWindow::offroadTransition(bool offroad) {
     slayout->setCurrentWidget(onroad);
   }
   sidebar->setVisible(offroad);
+  emit offroadTransitionSignal(offroad);
 }
 
 void HomeWindow::mousePressEvent(QMouseEvent* e) {
@@ -62,14 +64,14 @@ void HomeWindow::mousePressEvent(QMouseEvent* e) {
   int e_y = e->y();
   int e_button= e->button();
   // 1400, 820
-  if( e_x < 1000 || e_y < 820 ) 
+  if( e_x < 500 || e_y < 800 ) 
   {
     // Handle sidebar collapsing
-    if (childAt(e->pos()) == onroad) {
-      bool bSidebar = sidebar->isVisible();
-      QUIState::ui_state.scene.mouse.sidebar = !bSidebar;
-      sidebar->setVisible(!bSidebar);
-    }
+  if (onroad->isVisible() && (!sidebar->isVisible() || e->x() > sidebar->width())) {
+    bool bSidebar = sidebar->isVisible();
+    QUIState::ui_state.scene.mouse.sidebar = !bSidebar;
+    sidebar->setVisible(!bSidebar);
+  }
   }
 
     if (QUIState::ui_state.scene.mouse.sidebar )
@@ -82,7 +84,6 @@ void HomeWindow::mousePressEvent(QMouseEvent* e) {
   QUIState::ui_state.scene.mouse.touch_cnt++;
   printf("mousePressEvent %d,%d  %d \n", e_x, e_y, e_button);
 }
-
 
 // OffroadHome: the offroad home page
 
@@ -121,7 +122,6 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
   statsAndSetup->addWidget(drive);
 
   SetupWidget* setup = new SetupWidget;
-  //setup->setFixedSize(700, 700);
   statsAndSetup->addWidget(setup);
 
   QWidget* statsAndSetupWidget = new QWidget();
@@ -139,7 +139,6 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
   // set up refresh timer
   timer = new QTimer(this);
   QObject::connect(timer, &QTimer::timeout, this, &OffroadHome::refresh);
-  refresh();
   timer->start(10 * 1000);
 
   setLayout(main_layout);
@@ -151,6 +150,10 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
      color: white;
     }
   )");
+}
+
+void OffroadHome::showEvent(QShowEvent *event) {
+  refresh();
 }
 
 void OffroadHome::openAlerts() {

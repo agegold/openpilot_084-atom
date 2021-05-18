@@ -1,32 +1,31 @@
-#include <stdio.h>
-#include <stdbool.h>
+#include "selfdrive/camerad/cameras/camera_qcom.h"
+
 #include <assert.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <math.h>
 #include <poll.h>
+#include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <sys/ioctl.h>
-#include <atomic>
-#include <algorithm>
+#include <unistd.h>
 
-#include <linux/media.h>
+#include <algorithm>
+#include <atomic>
 
 #include <cutils/properties.h>
+#include <linux/media.h>
 
-#include <pthread.h>
-#include "msmb_isp.h"
-#include "msmb_ispif.h"
-#include "msmb_camera.h"
-#include "msm_cam_sensor.h"
-
-#include "common/util.h"
-#include "common/timing.h"
-#include "common/swaglog.h"
-#include "common/params.h"
-#include "clutil.h"
-
-#include "sensor_i2c.h"
-#include "camera_qcom.h"
+#include "selfdrive/camerad/cameras/sensor_i2c.h"
+#include "selfdrive/camerad/include/msm_cam_sensor.h"
+#include "selfdrive/camerad/include/msmb_camera.h"
+#include "selfdrive/camerad/include/msmb_isp.h"
+#include "selfdrive/camerad/include/msmb_ispif.h"
+#include "selfdrive/common/clutil.h"
+#include "selfdrive/common/params.h"
+#include "selfdrive/common/swaglog.h"
+#include "selfdrive/common/timing.h"
+#include "selfdrive/common/util.h"
 
 // leeco actuator (DW9800W H-Bridge Driver IC)
 // from sniff
@@ -878,15 +877,36 @@ static void do_autofocus(CameraState *s, SubMaster *sm) {
   // stay off the walls
   lens_true_pos = std::clamp(lens_true_pos, float(LP3_AF_DAC_DOWN), float(LP3_AF_DAC_UP));
   int target = std::clamp(lens_true_pos - sag, float(LP3_AF_DAC_DOWN), float(LP3_AF_DAC_UP));
+
+
+  static int nStep = 0;
+  nStep++;
+  if( nStep > 10 )
+  {
+    nStep = 0;
+    Params param = Params();
+    Params::param_value.autoFocus = param.getInt("OpkrAutoFocus") * 2;
+  }
+
+  if( Params::param_value.autoFocus )
+  {
+    target = LP3_AF_DAC_DOWN + Params::param_value.autoFocus;
+  }
+
   s->lens_true_pos.store(lens_true_pos);
 
-  /*char debug[4096];
-  char *pdebug = debug;
-  pdebug += sprintf(pdebug, "focus ");
-  for (int i = 0; i < NUM_FOCUS; i++) pdebug += sprintf(pdebug, "%2x(%4d) ", s->confidence[i], s->focus[i]);
-  pdebug += sprintf(pdebug, "  err: %7.2f  offset: %6.2f sag: %6.2f lens_true_pos: %6.2f  cur_lens_pos: %4d->%4d", err * focus_kp, offset, sag, s->lens_true_pos, s->cur_lens_pos, target);
-  LOGD(debug);*/
-
+/*
+  if(  nStep == 0)
+  {
+    char debug[4096];
+    char *pdebug = debug;
+    pdebug += sprintf(pdebug, "focus ");
+    //for (int i = 0; i < NUM_FOCUS; i++) pdebug += sprintf(pdebug, "%2x(%4d) ", s->confidence[i], s->focus[i]);
+    pdebug += sprintf(pdebug, "autoFocus=%d  lens_true_pos: %7.2f   sag: %6.2f  cur_lens_pos: %4d->%4d", Params::param_value.autoFocus, lens_true_pos, sag,  s->cur_lens_pos, target);
+    //LOGD(debug);
+    printf("%s \n",debug);
+  }
+*/
   actuator_move(s, target);
 }
 

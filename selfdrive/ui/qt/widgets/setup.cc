@@ -1,3 +1,5 @@
+#include "setup.h"
+
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -6,11 +8,10 @@
 #include <QStackedWidget>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QrCode.hpp>
 
-#include "QrCode.hpp"
-#include "request_repeater.hpp"
-#include "common/params.h"
-#include "setup.hpp"
+#include "selfdrive/common/params.h"
+#include "selfdrive/ui/qt/request_repeater.h"
 
 using qrcodegen::QrCode;
 
@@ -24,12 +25,16 @@ PairingQRWidget::PairingQRWidget(QWidget* parent) : QWidget(parent) {
   QTimer* timer = new QTimer(this);
   timer->start(30 * 1000);
   connect(timer, &QTimer::timeout, this, &PairingQRWidget::refresh);
-  refresh(); // don't wait for the first refresh
+}
+
+void PairingQRWidget::showEvent(QShowEvent *event){
+  refresh();
 }
 
 void PairingQRWidget::refresh(){
-  QString IMEI = QString::fromStdString(Params().get("IMEI"));
-  QString serial = QString::fromStdString(Params().get("HardwareSerial"));
+  Params params;
+  QString IMEI = QString::fromStdString(params.get("IMEI"));
+  QString serial = QString::fromStdString(params.get("HardwareSerial"));
 
   if (std::min(IMEI.length(), serial.length()) <= 5) {
     qrCode->setText("Error getting serial: contact support");
@@ -133,7 +138,7 @@ PrimeAdWidget::PrimeAdWidget(QWidget* parent) : QWidget(parent) {
 
   vlayout->addWidget(new QLabel("Upgrade now"), 1, Qt::AlignTop);
 
-  QLabel* description = new QLabel("Become a comma prime member in the comma connect app and get premium features!");
+  QLabel* description = new QLabel("Become a comma prime member at my.comma.ai and get premium features!");
   description->setStyleSheet(R"(
     font-size: 50px;
     color: #b8b8b8;

@@ -66,8 +66,8 @@ def create_lkas11(packer, frame, car_fingerprint, apply_steer, steer_req,
 def create_clu11(packer, frame, clu11, button, speed = None):
   values = clu11
 
-  if speed != None:
-    values["CF_Clu_Vanz"] = speed
+  #if speed != None:
+  #  values["CF_Clu_Vanz"] = speed
 
   values["CF_Clu_CruiseSwState"] = button
   values["CF_Clu_AliveCnt1"] = frame % 0x10
@@ -176,7 +176,7 @@ def create_mdps12(packer, frame, mdps12):
 
 def create_scc11(packer, frame, enabled, set_speed, lead_visible, scc_live, scc11):
   values = scc11
-  values["AliveCounterACC"] = frame % 0x10
+  values["AliveCounterACC"] = frame // 2 % 0x10
   if not scc_live:
     values["MainMode_ACC"] = 1
     values["VSetDis"] = set_speed

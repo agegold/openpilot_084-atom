@@ -6,14 +6,14 @@
 
 
 
-#include "widgets/input.hpp"
-#include "widgets/toggle.hpp"
-#include "widgets/offroad_alerts.hpp"
-#include "widgets/controls.hpp"
+#include "selfdrive/ui/qt/widgets/input.h"
+#include "selfdrive/ui/qt/widgets/toggle.h"
+#include "selfdrive/ui/qt/widgets/offroad_alerts.h"
+#include "selfdrive/ui/qt/widgets/controls.h"
 
-#include "common/params.h"
-#include "common/util.h"
-#include "ui.hpp"
+#include "selfdrive/common/params.h"
+#include "selfdrive/common/util.h"
+#include "selfdrive/ui/ui.h"
 
 #include "userPanel.hpp"
 
@@ -95,10 +95,35 @@ CUserPanel::CUserPanel(QWidget* parent) : QFrame(parent)
   layout()->addWidget(new BrightnessControl());
   layout()->addWidget(new CVolumeControl());  
   layout()->addWidget(new AutoScreenOff());
+  layout()->addWidget(new CAutoFocus());
 
   layout()->addWidget(horizontal_line());
 
+  layout()->addWidget(
+    new ButtonControl("car interfaces 실행", "실행",
+      "/data/openpilot/selfdrive/car/tests/test_car_interfaces.py 을 실행 합니다.", [=]() 
+      {
+          if (ConfirmationDialog::confirm("Are you sure you want to exec(test_car_interfaces.py)?")) 
+          {
+            std::system("python /data/openpilot/selfdrive/car/tests/test_car_interfaces.py");
+          }
+      }
+    )
+  );
 
+  layout()->addWidget(
+    new ButtonControl("build 실행", "실행",
+      "/data/openpilot/selfdrive/manager/build.py 을 실행 합니다.", [=]() 
+      {
+          if (ConfirmationDialog::confirm("Are you sure you want to exec(build.py)?")) 
+          {
+            std::system("python /data/openpilot/selfdrive/manager/build.py");
+          }
+      }
+    )
+  );
+
+  layout()->addWidget(horizontal_line());
   layout()->addWidget( new CarSelectCombo() );
 }
 
@@ -225,8 +250,8 @@ CVolumeControl::CVolumeControl() : AbstractControl("EON 볼륨 조절(%)", "EON�
     QUIState::ui_state.scene.scr.nVolumeBoost = value;
     Params().put("OpkrUIVolumeBoost", values.toStdString());
     refresh();
-    QUIState::ui_state.sound->volume = value * 0.005;
-    QUIState::ui_state.sound->play(AudibleAlert::CHIME_WARNING1);
+   // QUIState::ui_state.sound->volume = value * 0.005;
+   // QUIState::ui_state.sound->play(AudibleAlert::CHIME_WARNING1);
   });
   
   QObject::connect(&btnplus, &QPushButton::released, [=]() {
@@ -240,8 +265,8 @@ CVolumeControl::CVolumeControl() : AbstractControl("EON 볼륨 조절(%)", "EON�
     QUIState::ui_state.scene.scr.nVolumeBoost = value;
     Params().put("OpkrUIVolumeBoost", values.toStdString());
     refresh();
-    QUIState::ui_state.sound->volume = value * 0.005;
-    QUIState::ui_state.sound->play(AudibleAlert::CHIME_WARNING1);
+  //  QUIState::ui_state.sound->volume = value * 0.005;
+   // QUIState::ui_state.sound->play(AudibleAlert::CHIME_WARNING1);
   });
   refresh();
 }
@@ -256,6 +281,7 @@ void CVolumeControl::refresh() {
   btnminus.setText("－");
   btnplus.setText("＋");
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 //  AutoScreenOff
@@ -336,6 +362,83 @@ void AutoScreenOff::refresh()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
+//  Auto Focus
+
+  
+
+CAutoFocus::CAutoFocus() : AbstractControl("Auto Focus", "Focus을 변경합니다.  0:auto  1~100:manaul", "../assets/offroad/icon_shell.png") 
+{
+
+  label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
+  label.setStyleSheet("color: #e0e879");
+  hlayout->addWidget(&label);
+
+  btnminus.setStyleSheet(R"(
+    padding: 0;
+    border-radius: 50px;
+    font-size: 35px;
+    font-weight: 500;
+    color: #E4E4E4;
+    background-color: #393939;
+  )");
+  btnplus.setStyleSheet(R"(
+    padding: 0;
+    border-radius: 50px;
+    font-size: 35px;
+    font-weight: 500;
+    color: #E4E4E4;
+    background-color: #393939;
+  )");
+  btnminus.setFixedSize(150, 100);
+  btnplus.setFixedSize(150, 100);
+  hlayout->addWidget(&btnminus);
+  hlayout->addWidget(&btnplus);
+
+  QObject::connect(&btnminus, &QPushButton::released, [=]() {
+    auto str = QString::fromStdString(Params().get("OpkrAutoFocus"));
+    int value = str.toInt();
+    value = value - 1;
+    if (value <= 0 ) {
+      value = 0;
+    } else {
+    }
+
+    Params::param_value.autoFocus = value;
+    QString values = QString::number(value);
+    Params().put("OpkrAutoFocus", values.toStdString());
+    refresh();
+  });
+  
+  QObject::connect(&btnplus, &QPushButton::released, [=]() {
+    auto str = QString::fromStdString(Params().get("OpkrAutoFocus"));
+    int value = str.toInt();
+    value = value + 1;
+    if (value >= 100 ) {
+      value = 100;
+    } else {
+    }
+
+    Params::param_value.autoFocus = value;
+    QString values = QString::number(value);
+    Params().put("OpkrAutoFocus", values.toStdString());
+    refresh();
+  });
+  refresh();
+}
+
+void CAutoFocus::refresh() 
+{
+  QString option = QString::fromStdString(Params().get("OpkrAutoFocus"));
+  if (option == "0") {
+    label.setText(QString::fromStdString("자동"));
+  } else {
+    label.setText(QString::fromStdString(Params().get("OpkrAutoFocus")));
+  }
+  btnminus.setText("－");
+  btnplus.setText("＋");
+}
+////////////////////////////////////////////////////////////////////////////////////////
+//
 //  Git
 
 
@@ -362,59 +465,125 @@ GitHash::GitHash() : AbstractControl("커밋(로컬/리모트)", "", "") {
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 //  QComboBox
-
-CarSelectCombo::CarSelectCombo(QWidget * parent)
-     :QComboBox ( parent )
+CarSelectCombo::CarSelectCombo() : AbstractControl("Car", "자동차 모델을 강제로 인식시키는 메뉴입니다.", "") 
 {
-  setStyleSheet(R"(
-    font-size: 50px;
+  combobox.setStyleSheet(R"(
+    font-size: 35px;
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    selection-background-color: #111;
+    selection-color: yellow;
+    color: white;
+    background-color: #393939;
+    border-style: solid;
+    border: 1px solid #1e1e1e;
+    border-radius: 5;
+    padding: 1px 0px 1px 5px; 
+  )");
+
+  btnminus.setStyleSheet(R"(
+    padding: 0;
+    border-radius: 50px;
+    font-size: 35px;
     font-weight: 500;
     color: #E4E4E4;
-    count: 20;
     background-color: #393939;
   )");
 
+  btnplus.setStyleSheet(R"(
+    padding: 0;
+    border-radius: 50px;
+    font-size: 35px;
+    font-weight: 500;
+    color: #E4E4E4;
+    background-color: #393939;
+  )");
 
-    addItem("HYUNDAI ELANTRA LIMITED 2017");
-    addItem("HYUNDAI I30 N LINE 2019");
-    addItem("HYUNDAI GENESIS 2015-2016");
+   combobox.addItem("HYUNDAI ELANTRA LIMITED 2017");
+    combobox.addItem("HYUNDAI I30 N LINE 2019");
+    combobox.addItem("HYUNDAI GENESIS 2015-2016");
 
-    addItem("HYUNDAI IONIQ ELECTRIC 2019");
-    addItem("HYUNDAI IONIQ ELECTRIC 2020");
-    addItem("HYUNDAI KONA 2020");
-    addItem("HYUNDAI KONA ELECTRIC 2019");
-    addItem("HYUNDAI SANTA FE LIMITED 2019");
-    addItem("HYUNDAI SONATA 2020");
-    addItem("HYUNDAI SONATA 2019");
-    addItem("HYUNDAI PALISADE 2020");
-    addItem("HYUNDAI VELOSTER 2019");
-    addItem("HYUNDAI GRANDEUR HYBRID 2019");
-
-
-    addItem("KIA FORTE E 2018 & GT 2021");
-    addItem("KIA NIRO EV 2020");
-    addItem("KIA OPTIMA SX 2019 & 2016");
-    addItem("KIA OPTIMA HYBRID 2017 2019");
-    addItem("KIA SELTOS 2021");
-    addItem("KIA SORENTO GT LINE 2018");
-    addItem("KIA STINGER GT2 2018");
-    addItem("KIA CEED INTRO ED 2019");
+    combobox.addItem("HYUNDAI IONIQ ELECTRIC 2019");
+    combobox.addItem("HYUNDAI IONIQ ELECTRIC 2020");
+    combobox.addItem("HYUNDAI KONA 2020");
+    combobox.addItem("HYUNDAI KONA ELECTRIC 2019");
+    combobox.addItem("HYUNDAI SANTA FE LIMITED 2019");
+    combobox.addItem("HYUNDAI SONATA 2020");
+    combobox.addItem("HYUNDAI SONATA 2019");
+    combobox.addItem("HYUNDAI PALISADE 2020");
+    combobox.addItem("HYUNDAI VELOSTER 2019");
+    combobox.addItem("HYUNDAI GRANDEUR HYBRID 2019");
 
 
-    addItem("GENESIS G70 2018");
-    addItem("GENESIS G80 2017");
-    addItem("GENESIS G90 2017");
+    combobox.addItem("KIA FORTE E 2018 & GT 2021");
+    combobox.addItem("KIA NIRO EV 2020");
+    combobox.addItem("KIA OPTIMA SX 2019 & 2016");
+    combobox.addItem("KIA OPTIMA HYBRID 2017 2019");
+    combobox.addItem("KIA SELTOS 2021");
+    combobox.addItem("KIA SORENTO GT LINE 2018");
+    combobox.addItem("KIA STINGER GT2 2018");
+    combobox.addItem("KIA CEED INTRO ED 2019");
+
+
+    combobox.addItem("GENESIS G70 2018");
+    combobox.addItem("GENESIS G80 2017");
+    combobox.addItem("GENESIS G90 2017");
+
+  //QAbstractItemView *qv = combobox.view();
+  //QScrollBar *scrollbar = qv->verticalScrollBar();    
+
+  hlayout->addWidget(&combobox);
+
+  label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
+  label.setStyleSheet("color: #e0e879");
+  hlayout->addWidget(&label);
+
+
+  btnminus.setFixedSize(150, 100);
+  btnplus.setFixedSize(150, 100);
+  hlayout->addWidget(&btnminus);
+  hlayout->addWidget(&btnplus);
+
+
+
+  QObject::connect(&btnminus, &QPushButton::released, [=]() 
+  {
+    int nIdx = combobox.currentIndex() - 1;
+    if( nIdx < 0 ) nIdx = 0;
+    combobox.setCurrentIndex( nIdx);
+    refresh();
+  });
+  
+  QObject::connect(&btnplus, &QPushButton::released, [=]() 
+  {
+    int nMax = combobox.count();
+    int nIdx = combobox.currentIndex() + 1;
+
+    if( nIdx >=  nMax )
+      nIdx = nMax;
+
+    combobox.setCurrentIndex( nIdx);
+
+    refresh();
+  });
+
+  QObject::connect(&combobox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index)
+  {
+      int nIdx = combobox.currentIndex();
+
+      QString str = combobox.currentText();
+      printf("changeEvent: %d  index = %d %s \n", nIdx, index, str.toStdString().c_str() );
+      refresh();
+  });
+
+  refresh();
 }
 
-void CarSelectCombo::changeEvent( QEvent * e )
+void CarSelectCombo::refresh() 
 {
-  int nIdx = currentIndex();
+   int nIdx = combobox.currentIndex();
+  label.setText( QString::number(nIdx) );
 
-  printf("changeEvent: %d \n", nIdx );
-}
-
-
-void CarSelectCombo::keyPressEvent ( QKeyEvent * e )
-{
-
+  btnminus.setText("－");
+  btnplus.setText("＋");
 }

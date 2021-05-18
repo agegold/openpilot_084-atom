@@ -11,7 +11,7 @@
 #include <QScrollArea>
 #include <QStackedWidget>
 
-#include "selfdrive/ui/qt/widgets/controls.hpp"
+#include "selfdrive/ui/qt/widgets/controls.h"
 
 
 class CUserPanel : public QFrame 
@@ -133,7 +133,19 @@ private:
   void refresh();
 };
 
+class CAutoFocus : public AbstractControl {
+  Q_OBJECT
 
+public:
+  CAutoFocus();
+
+private:
+  QPushButton btnplus;
+  QPushButton btnminus;
+  QLabel label;
+
+  void refresh();
+};
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 //  Git
@@ -167,13 +179,20 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 //  Combo box
-class CarSelectCombo : public QComboBox 
+class CarSelectCombo : public AbstractControl 
 {
   Q_OBJECT
 
 public:
-  CarSelectCombo( QWidget * parent = 0 );
+  CarSelectCombo();
 
-  void changeEvent ( QEvent * e );
-  void keyPressEvent ( QKeyEvent * e );
+private:
+  QPushButton btnplus;
+  QPushButton btnminus;
+  QLabel label;
+
+  QComboBox  combobox;
+
+  void refresh();
+
 };

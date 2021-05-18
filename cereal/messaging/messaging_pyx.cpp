@@ -4,7 +4,7 @@
 {
     "distutils": {
         "depends": [
-            "cereal/messaging/messaging.hpp"
+            "cereal/messaging/messaging.h"
         ],
         "include_dirs": [
             "./cereal/messaging"
@@ -646,7 +646,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <string>
 #include <errno.h>
 #include <vector>
-#include "messaging.hpp"
+#include "messaging.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
